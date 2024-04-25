@@ -46,7 +46,7 @@ app.get("/contact", (req, res) => {
 app.post('/contact/send-message', upload.single('projectDesign'), (req, res) => {
 
   const { author, sender, title, message } = req.body;
-  const file = req.projectDesign;
+  const file = req.file;
 
   if(author && sender && title && message && file) {
     res.render('contact', { isSent: true, fileName: file.originalname });

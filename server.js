@@ -5,22 +5,15 @@ const multer = require('multer');
 
 const app = express();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/uploads');
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
-
-app.engine('hbs', hbs({ extname: 'hbs', layoutsDir: './views/layouts', defaultLayout: 'main' }));
+app.engine('hbs', hbs());
 app.set('view engine', 'hbs');
+
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 app.get('/', (req, res) => {
   res.render('index');
@@ -46,16 +39,18 @@ app.get('/history', (req, res) => {
   res.render('history');
 });
 
-app.post('/contact/send-message', upload.single('projectDesing'), (req, res) => {
+app.get("/contact", (req, res) => {
+  res.render("contact");
+});
+
+app.post('/contact/send-message', upload.single('projectDesign'), (req, res) => {
 
   const { author, sender, title, message } = req.body;
-  const fileName = req.file ? req.file.originalname : '';
+  const file = req.projectDesign;
 
-  if(author && sender && title && message && fileName) {
-    const imgPath = req.file ? `/uploads/${fileName}`:'';
-    res.render('contact', { isSent: true, imgPath });
-  }
-  else {
+  if(author && sender && title && message && file) {
+    res.render('contact', { isSent: true, fileName: file.originalname });
+  }else {
     res.render('contact', { isError: true });
   }
 });
